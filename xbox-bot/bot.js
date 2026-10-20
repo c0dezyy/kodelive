@@ -10,8 +10,8 @@ const path = require('path')
 const { execSync } = require('child_process')
 
 const cfg = {
-  host: process.env.MC_HOST || '127.0.0.1',
-  port: parseInt(process.env.MC_PORT || '19132', 10),
+  host: process.env.MC_HOST || '15.235.165.81',
+  port: parseInt(process.env.MC_PORT || '26179', 10),
   version: process.env.MC_VERSION || null,          // e.g. 1.21.80 (optional)
   label: process.env.ACCOUNT_LABEL || 'camera-bot', // only names the cached login
   authDir: process.env.AUTH_DIR || './auth',        // on Railway: mount a volume at /data and use /data/auth

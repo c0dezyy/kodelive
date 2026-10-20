@@ -1,0 +1,44 @@
+# OPTIONAL. Runs the Xbox bot on GitHub Actions in ~5.5 hour chunks.
+# Read the warning in README.md (step 5B) first: GitHub's terms limit what Actions may be used for,
+# and a job can never run longer than 6 hours. Railway (step 5A) is the better host.
+name: Xbox camera bot
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+concurrency:
+  group: xbox-bot
+  cancel-in-progress: false
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Restore Xbox login cache
+        uses: actions/cache/restore@v4
+        with:
+          path: xbox-bot/auth
+          key: xbox-auth-${{ github.run_id }}
+          restore-keys: xbox-auth-
+      - run: npm install --omit=dev
+        working-directory: xbox-bot
+      - run: node bot.js
+        working-directory: xbox-bot
+        env:
+          MC_HOST: ${{ secrets.MC_HOST }}
+          MC_PORT: ${{ secrets.MC_PORT }}
+          MC_VERSION: ${{ secrets.MC_VERSION }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          AUTH_CACHE_B64: ${{ secrets.AUTH_CACHE_B64 }}
+          AUTH_DIR: ./auth
+          MAX_RUNTIME_MIN: '340'
+      - name: Save Xbox login cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: xbox-bot/auth
+          key: xbox-auth-${{ github.run_id }}
